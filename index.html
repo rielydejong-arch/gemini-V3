@@ -60,7 +60,8 @@
             overflow-x: auto; 
             font-family: 'Courier New', monospace;
             border: 1px solid #333;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
         }
         code { color: #8ab4f8; }
         b { color: #fff; font-weight: 600; }
@@ -83,7 +84,7 @@
         <div class="space-y-6">
             <div class="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
                 <p class="text-[11px] text-blue-400 font-medium uppercase tracking-wider mb-2">System Status</p>
-                <p class="text-xs text-gray-300 leading-relaxed">Public Access Enabled. No GitHub Token required.</p>
+                <p class="text-xs text-gray-300 leading-relaxed">Public Access Enabled. Connection: <span id="conn-status" class="text-green-400">Ready</span></p>
             </div>
 
             <div>
@@ -91,7 +92,7 @@
                 <select id="model-select" class="w-full mt-2 bg-[#1e1f20] border border-white/10 rounded-xl px-4 py-2 text-sm text-white outline-none cursor-pointer">
                     <option value="openai">GPT-4o (Optimized)</option>
                     <option value="mistral">Mistral Large</option>
-                    <option value="lambda">Llama 3.1 70B</option>
+                    <option value="p1">Pollinations Base</option>
                 </select>
             </div>
         </div>
@@ -156,6 +157,7 @@
         const chatWindow = document.getElementById('chat-window');
 
         function formatAIResponse(text) {
+            // Basic Markdown simulation
             return text
                 .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
                 .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
@@ -199,16 +201,12 @@
             scrollToBottom();
 
             try {
-                // Using Pollinations AI - No Token Required!
-                const response = await fetch(`https://text.pollinations.ai/`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        messages: [{ role: "user", content: prompt }],
-                        model: modelSelect.value,
-                        seed: Math.floor(Math.random() * 1000)
-                    })
-                });
+                // Improved API call using GET for better compatibility with browser restrictions
+                const encodedPrompt = encodeURIComponent(prompt);
+                const model = modelSelect.value;
+                const url = `https://text.pollinations.ai/${encodedPrompt}?model=${model}&seed=${Math.floor(Math.random() * 1000)}`;
+
+                const response = await fetch(url);
 
                 if (!response.ok) throw new Error("Connection failed");
 
@@ -216,9 +214,11 @@
                 document.getElementById(aiMsgId).innerHTML = formatAIResponse(aiResponse);
 
             } catch (error) {
+                console.error(error);
                 document.getElementById(aiMsgId).innerHTML = `
-                    <div class="text-red-400 text-sm">
-                        Unable to reach the AI node. Please try again in a moment.
+                    <div class="text-red-400 text-sm p-3 border border-red-500/20 rounded-xl bg-red-500/5">
+                        <b>Connection Error:</b> Lumina is unable to reach the AI node.<br>
+                        <span class="text-xs opacity-70">This usually happens due to CORS restrictions or network blocks in your current environment. Try opening this file in a standard browser or a local server.</span>
                     </div>
                 `;
             }
@@ -230,8 +230,16 @@
         }
 
         document.getElementById('send-btn').onclick = handleSend;
-        userInput.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } };
-        userInput.oninput = () => { userInput.style.height = 'auto'; userInput.style.height = userInput.scrollHeight + 'px'; };
+        userInput.onkeydown = (e) => { 
+            if (e.key === 'Enter' && !e.shiftKey) { 
+                e.preventDefault(); 
+                handleSend(); 
+            } 
+        };
+        userInput.oninput = () => { 
+            userInput.style.height = 'auto'; 
+            userInput.style.height = userInput.scrollHeight + 'px'; 
+        };
     </script>
 </body>
 </html>
