@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumina | Instant AI</title>
+    <title>Lumina | Private AI Node</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -23,23 +23,12 @@
             background: radial-gradient(circle at 50% -20%, #1e293b 0%, #0e0e11 80%);
             z-index: -1;
         }
-        .aura {
-            position: absolute; width: 600px; height: 600px;
-            background: rgba(66, 133, 244, 0.08);
-            filter: blur(120px); border-radius: 50%; 
-            animation: move 20s infinite alternate;
-        }
-        @keyframes move { from { transform: translate(-10%, -10%); } to { transform: translate(20%, 10%); } }
-
+        
         .glass-card { 
             background: rgba(23, 23, 27, 0.6); 
             backdrop-filter: blur(12px); 
             border: 1px solid rgba(255, 255, 255, 0.05); 
         }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 
         .input-area {
             background: #1e1f20;
@@ -47,9 +36,8 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .input-area:focus-within {
-            background: #282a2d;
             border-color: #4285f4;
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            box-shadow: 0 0 40px rgba(66, 133, 244, 0.1);
         }
 
         pre { 
@@ -61,82 +49,73 @@
             font-family: 'Courier New', monospace;
             border: 1px solid #333;
             font-size: 0.85rem;
-            line-height: 1.5;
         }
         code { color: #8ab4f8; }
         b { color: #fff; font-weight: 600; }
+
+        .typing-dot {
+            width: 4px; height: 4px;
+            background: #4285f4;
+            border-radius: 50%;
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
     </style>
 </head>
 <body class="flex">
 
     <div class="bg-gradient"></div>
-    <div class="aura"></div>
 
     <!-- Sidebar -->
     <aside class="w-72 hidden lg:flex flex-col p-6 border-r border-white/5 z-10 bg-black/20">
         <div class="flex items-center gap-3 mb-10">
-            <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-                <i data-lucide="sparkles" class="text-black" size="18"></i>
+            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <i data-lucide="zap" class="text-white" size="18"></i>
             </div>
             <h1 class="font-bold text-xl tracking-tighter text-white">LUMINA</h1>
         </div>
 
         <div class="space-y-6">
-            <div class="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                <p class="text-[11px] text-blue-400 font-medium uppercase tracking-wider mb-2">System Status</p>
-                <p class="text-xs text-gray-300 leading-relaxed">Public Access Enabled. Connection: <span id="conn-status" class="text-green-400">Ready</span></p>
+            <div class="p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+                <p class="text-[10px] text-green-400 font-bold uppercase mb-1">Proxy Connection</p>
+                <p class="text-[11px] text-gray-300 truncate">tored-glade-d794.riely-dejong...</p>
+                <div class="mt-2 flex items-center gap-2 text-[10px] text-green-400">
+                    <div class="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse"></div>
+                    PRIVATE WORKER ACTIVE
+                </div>
             </div>
 
             <div>
-                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-2">Active Intelligence</label>
-                <select id="model-select" class="w-full mt-2 bg-[#1e1f20] border border-white/10 rounded-xl px-4 py-2 text-sm text-white outline-none cursor-pointer">
-                    <option value="openai">GPT-4o (Optimized)</option>
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-2">Intelligence</label>
+                <select id="model-select" class="w-full mt-2 bg-[#1e1f20] border border-white/10 rounded-xl px-4 py-2 text-sm text-white outline-none">
+                    <option value="openai">GPT-4o</option>
                     <option value="mistral">Mistral Large</option>
                     <option value="p1">Pollinations Base</option>
                 </select>
             </div>
         </div>
-
-        <div class="mt-auto p-4 glass-card rounded-2xl">
-            <p class="text-[10px] text-gray-400 leading-relaxed">
-                <i data-lucide="globe" class="inline mr-1" size="12"></i>
-                Connected to Decentralized Inference Nodes.
-            </p>
-        </div>
     </aside>
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col relative z-10 h-screen">
-        <header class="p-6 flex justify-between items-center bg-transparent">
-            <div class="lg:hidden font-bold tracking-tighter flex items-center gap-2">
-                <i data-lucide="sparkles" size="20"></i> LUMINA
-            </div>
-            <div class="flex items-center gap-2 ml-auto">
-                <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span class="text-[10px] text-gray-400 font-mono uppercase tracking-widest">Public Node Active</span>
-            </div>
-        </header>
-
-        <!-- Chat Container -->
         <div id="chat-window" class="flex-1 overflow-y-auto px-6 flex flex-col items-center">
             <div id="welcome" class="mt-32 text-center max-w-xl">
-                <h2 class="text-5xl font-semibold text-white mb-6 tracking-tight">How can <span class="text-blue-500">Lumina</span> assist you?</h2>
-                <p class="text-gray-400">Open-access intelligence. No login, no tokens, just speed.</p>
+                <h2 class="text-5xl font-semibold text-white mb-6">Lumina <span class="text-blue-500">Pro</span></h2>
+                <p class="text-gray-400">Connected via your private Cloudflare Worker.</p>
             </div>
             <div id="messages" class="w-full max-w-3xl space-y-10 py-10"></div>
         </div>
 
-        <!-- Input Area -->
         <div class="p-6 flex flex-col items-center">
             <div class="w-full max-w-3xl">
                 <div class="input-area rounded-[28px] p-2 pr-4 shadow-2xl">
-                    <textarea id="user-input" rows="1" placeholder="Ask anything..." 
+                    <textarea id="user-input" rows="1" placeholder="Type your message..." 
                         class="w-full bg-transparent border-none outline-none p-4 text-gray-100 resize-none max-h-60"></textarea>
                     
                     <div class="flex items-center justify-between pb-2 pl-4">
                         <div class="flex gap-4 text-gray-500">
-                            <i data-lucide="image" size="18" class="hover:text-white cursor-pointer"></i>
-                            <i data-lucide="code" size="18" class="hover:text-white cursor-pointer"></i>
+                            <i data-lucide="shield-check" size="16"></i>
+                            <span class="text-[10px] font-mono mt-0.5">SECURE TUNNEL</span>
                         </div>
                         <button id="send-btn" class="bg-white text-black p-2.5 rounded-full hover:scale-105 active:scale-95 transition">
                             <i data-lucide="arrow-up" size="20"></i>
@@ -152,12 +131,13 @@
 
         const messagesDiv = document.getElementById('messages');
         const userInput = document.getElementById('user-input');
-        const modelSelect = document.getElementById('model-select');
-        const welcome = document.getElementById('welcome');
         const chatWindow = document.getElementById('chat-window');
+        const modelSelect = document.getElementById('model-select');
+
+        // Your Custom Worker URL
+        const PROXY_URL = "https://tored-glade-d794.riely-dejong.workers.dev/";
 
         function formatAIResponse(text) {
-            // Basic Markdown simulation
             return text
                 .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
                 .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
@@ -168,78 +148,67 @@
             const prompt = userInput.value.trim();
             if (!prompt) return;
 
-            welcome.classList.add('hidden');
+            document.getElementById('welcome').classList.add('hidden');
             userInput.value = '';
             userInput.style.height = 'auto';
 
             // User Message UI
             messagesDiv.innerHTML += `
-                <div class="flex flex-col items-end">
-                    <div class="bg-[#2b2d31] px-6 py-3 rounded-[24px] max-w-[85%] text-white border border-white/5 shadow-sm">
+                <div class="flex justify-end">
+                    <div class="bg-[#2b2d31] px-5 py-3 rounded-2xl max-w-[85%] text-white border border-white/5">
                         ${prompt}
                     </div>
-                </div>
-            `;
+                </div>`;
 
             // AI Loading UI
-            const aiMsgId = 'ai-' + Date.now();
+            const aiId = 'ai-' + Date.now();
             messagesDiv.innerHTML += `
-                <div class="flex gap-5">
-                    <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center flex-shrink-0 mt-1">
+                <div class="flex gap-4">
+                    <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0 mt-1">
                         <i data-lucide="sparkles" size="14" class="text-white"></i>
                     </div>
-                    <div id="${aiMsgId}" class="pt-1 text-gray-200 leading-relaxed flex-1">
+                    <div id="${aiId}" class="pt-1 text-gray-200 leading-relaxed flex-1">
                         <div class="flex gap-1 mt-2">
-                            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></div>
-                            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot" style="animation-delay: 0.2s"></div>
+                            <div class="typing-dot" style="animation-delay: 0.4s"></div>
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
+            
             lucide.createIcons();
-            scrollToBottom();
+            chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
 
             try {
-                // Improved API call using GET for better compatibility with browser restrictions
-                const encodedPrompt = encodeURIComponent(prompt);
                 const model = modelSelect.value;
-                const url = `https://text.pollinations.ai/${encodedPrompt}?model=${model}&seed=${Math.floor(Math.random() * 1000)}`;
+                const seed = Math.floor(Math.random() * 10000);
+                
+                // Construct the target AI URL
+                const targetApi = `https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=${model}&seed=${seed}`;
+                
+                // Wrap it in your Proxy URL
+                const finalRequestUrl = `${PROXY_URL}?url=${encodeURIComponent(targetApi)}`;
 
-                const response = await fetch(url);
-
-                if (!response.ok) throw new Error("Connection failed");
+                const response = await fetch(finalRequestUrl);
+                
+                if (!response.ok) throw new Error("Proxy Error");
 
                 const aiResponse = await response.text();
-                document.getElementById(aiMsgId).innerHTML = formatAIResponse(aiResponse);
+                document.getElementById(aiId).innerHTML = formatAIResponse(aiResponse);
 
             } catch (error) {
-                console.error(error);
-                document.getElementById(aiMsgId).innerHTML = `
-                    <div class="text-red-400 text-sm p-3 border border-red-500/20 rounded-xl bg-red-500/5">
-                        <b>Connection Error:</b> Lumina is unable to reach the AI node.<br>
-                        <span class="text-xs opacity-70">This usually happens due to CORS restrictions or network blocks in your current environment. Try opening this file in a standard browser or a local server.</span>
-                    </div>
-                `;
+                document.getElementById(aiId).innerHTML = `
+                    <div class="text-red-400 text-sm border border-red-500/20 p-3 rounded-xl bg-red-500/5">
+                        <b>Worker Error:</b> Could not reach the AI via your proxy.<br>
+                        <span class="text-[10px] opacity-70">Make sure your Cloudflare Worker is deployed and the code is correct.</span>
+                    </div>`;
             }
-            scrollToBottom();
-        }
-
-        function scrollToBottom() {
             chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
         }
 
         document.getElementById('send-btn').onclick = handleSend;
-        userInput.onkeydown = (e) => { 
-            if (e.key === 'Enter' && !e.shiftKey) { 
-                e.preventDefault(); 
-                handleSend(); 
-            } 
-        };
-        userInput.oninput = () => { 
-            userInput.style.height = 'auto'; 
-            userInput.style.height = userInput.scrollHeight + 'px'; 
-        };
+        userInput.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } };
+        userInput.oninput = () => { userInput.style.height = 'auto'; userInput.style.height = userInput.scrollHeight + 'px'; };
     </script>
 </body>
 </html>
